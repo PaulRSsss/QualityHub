@@ -1,0 +1,36 @@
+name: QualityHub SQA — Integración Continua
+
+on:
+  push:
+    branches: [ "main", "develop", "feature/*" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  sqa-quality-gate:
+    name: Pruebas Unitarias y Verificación SQA
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código fuente
+        uses: actions/checkout@v4
+
+      - name: Configurar entorno Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verificar existencia de evidencias de SQA obligatorias
+        run: |
+          test -f docs/sqa/01-definicion-arquitectura.md
+          test -f docs/sqa/02-actas-caminatas.md
+          test -f docs/sqa/03-revisiones-personales.md
+          test -f docs/sqa/04-bitacora-sqa.md
+          test -f docs/sqa/05-reportes-checkins.md
+          test -f src/index.html
+          test -f src/app.js
+          echo "Artefactos de SQA e interfaz verificados correctamente."
+
+      - name: Ejecutar Suite de Pruebas Unitarias (Quality Gate)
+        run: |
+          python -m unittest discover -s tests -v
