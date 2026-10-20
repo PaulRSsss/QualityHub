@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QualityHub — Centro de Control y Monitoreo de SQA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Barra Superior Institucional -->
+  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center font-extrabold text-lg shadow-lg shadow-blue-600/30">
+          QH
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-xl font-bold tracking-tight">QualityHub</h1>
+            <span class="text-xs font-semibold uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              SQA Control Center
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">Monitoreo, Gestión de Técnicas y Estado de Salud de Software</p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <div class="flex items-center gap-2 bg-slate-800/90 border border-slate-700 rounded-lg px-3 py-1.5">
+          <label for="global-period-filter" class="text-xs font-medium text-slate-300">Periodo:</label>
+          <select id="global-period-filter" class="bg-transparent text-sm font-semibold text-white focus:outline-none">
+            <option value="TODOS" class="bg-slate-900">Todos los Periodos</option>
+            <option value="2026-2" selected class="bg-slate-900">2026-2 (Ago-Dic)</option>
+            <option value="2026-1" class="bg-slate-900">2026-1 (Ene-Jun)</option>
+          </select>
+        </div>
+
+        <button id="btn-reset-demo" title="Restaurar datos demostrativos"
+          class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-3 py-2 rounded-lg transition">
+          Restaurar Datos Demo
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navegación de Módulos del Alcance -->
+  <nav class="bg-white border-b border-slate-200 sticky top-[73px] z-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex flex-wrap gap-2">
+      <button data-tab="tab-dashboard" class="tab-btn active text-sm font-semibold px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100 transition">
+        📊 Centro de Control
+      </button>
+      <button data-tab="tab-proyectos" class="tab-btn text-sm font-semibold px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100 transition">
+        📁 1. Registro de Proyectos
+      </button>
+      <button data-tab="tab-metricas" class="tab-btn text-sm font-semibold px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100 transition">
+        📈 2. Seguimiento de Métricas
+      </button>
+      <button data-tab="tab-tecnicas" class="tab-btn text-sm font-semibold px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100 transition">
+        🛡️ 3. Gestión de Técnicas SQA
+      </button>
+      <button data-tab="tab-reportes" class="tab-btn text-sm font-semibold px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100 transition">
+        📑 4. Reportes de Salud
+      </button>
+    </div>
+  </nav>
+
+  <!-- Notificación Toast -->
+  <div id="toast-alert" class="fixed bottom-5 right-5 hidden z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl border border-slate-700 text-sm font-medium"></div>
+
+  <!-- Contenido Principal -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- ========================================== -->
+    <!-- PESTAÑA 0: CENTRO DE CONTROL (DASHBOARD)   -->
+    <!-- ========================================== -->
+    <section id="tab-dashboard" class="tab-section space-y-6">
+      <!-- KPIs Globales -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-xl border border-slate-200 card-shadow">
+          <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Proyectos en Periodo</p>
+          <div class="mt-2 flex items-baseline justify-between">
+            <h3 id="kpi-total-projects" class="text-3xl font-extrabold text-slate-900">0</h3>
+            <span class="text-xs font-medium text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full">Monitoreados</span>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-slate-200 card-shadow">
+          <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Índice de Salud Promedio</p>
+          <div class="mt-2 flex items-baseline justify-between">
+            <h3 id="kpi-avg-health" class="text-3xl font-extrabold text-emerald-600">0%</h3>
+            <span id="kpi-avg-badge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700">Saludable</span>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-slate-200 card-shadow">
+          <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Técnicas SQA Aplicadas</p>
+          <div class="mt-2 flex items-baseline justify-between">
+            <h3 id="kpi-total-techniques" class="text-3xl font-extrabold text-indigo-600">0</h3>
+            <span id="kpi-early-defects" class="text-xs font-medium text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-full">0 hallazgos</span>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-slate-200 card-shadow">
+          <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Defectos Críticos Abiertos</p>
+          <div class="mt-2 flex items-baseline justify-between">
+            <h3 id="kpi-critical-bugs" class="text-3xl font-extrabold text-rose-600">0</h3>
+            <span class="text-xs font-medium text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">Meta: 0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gráficos de Monitoreo -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 card-shadow">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h2 class="text-base font-bold text-slate-900">Estado de Salud por Proyecto (Health Score)</h2>
+              <p class="text-xs text-slate-500">Evaluación ponderada de cobertura, CI, defectos críticos, técnicas SQA y deuda técnica</p>
+            </div>
+            <span class="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-md">
+              Umbral Saludable &ge; 85%
+            </span>
+          </div>
+          <div class="h-64">
+            <canvas id="chart-health-projects"></canvas>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-slate-200 card-shadow">
+          <div class="mb-4">
+            <h2 class="text-base font-bold text-slate-900">Distribución de Técnicas SQA</h2>
+            <p class="text-xs text-slate-500">Prácticas estáticas y dinámicas registradas</p>
+          </div>
+          <div class="h-64 flex items-center justify-center">
+            <canvas id="chart-sqa-techniques"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla Resumen de Proyectos Monitoreados -->
+      <div class="bg-white rounded-xl border border-slate-200 card-shadow overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <h2 class="text-base font-bold text-slate-900">Tablero de Control de Proyectos Monitoreados</h2>
+            <p class="text-xs text-slate-500">Vista consolidada de métricas clave y dictamen del Quality Gate</p>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 text-slate-500 text-xs uppercase font-semibold border-b border-slate-200">
+                <th class="py-3 px-4">Proyecto</th>
+                <th class="py-3 px-4">Periodo</th>
+                <th class="py-3 px-4">Responsable</th>
+                <th class="py-3 px-4 text-center">Cobertura Unit.</th>
+                <th class="py-3 px-4 text-center">CI Pass</th>
+                <th class="py-3 px-4 text-center">Bugs Crít.</th>
+                <th class="py-3 px-4 text-center">Cumpl. SQA</th>
+                <th class="py-3 px-4 text-center">Salud</th>
+                <th class="py-3 px-4 text-center">Estado</th>
+                <th class="py-3 px-4 text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="dashboard-projects-tbody" class="divide-y divide-slate-200 text-sm"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- PESTAÑA 1: REGISTRO DE PROYECTOS           -->
+    <!-- ========================================== -->
+    <section id="tab-proyectos" class="tab-section hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Formulario de Registro -->
+        <div class="bg-white p-6 rounded-xl border border-slate-200 card-shadow">
+          <h2 class="text-lg font-bold text-slate-900 mb-1">Registrar Proyecto por Periodo</h2>
+          <p class="text-xs text-slate-500 mb-4">Da de alta un proyecto de software para monitorear sus actividades de SQA.</p>
+
+          <form id="form-register-project" class="space-y-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Nombre del Proyecto *</label>
+              <input type="text" id="proj-name" required minlength="3" placeholder="Ej. Sistema de Control Escolar"
+                class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Periodo *</label>
+                <select id="proj-period" required
+                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                  <option value="2026-2 (Ago-Dic)">2026-2 (Ago-Dic)</option>
+                  <option value="2026-1 (Ene-Jun)">2026-1 (Ene-Jun)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Stack / Lenguaje *</label>
+                <input type="text" id="proj-stack" required placeholder="Ej. Python / React"
+                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Líder / Responsable *</label>
+              <input type="text" id="proj-lead" required list="team-members-list" placeholder="Selecciona o escribe un nombre"
+                class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              <datalist id="team-members-list">
+                <option value="Ricardo Parga"></option>
+                <option value="Paul Rivera Salas"></option>
+                <option value="Jesús Adrián Arias Delgado"></option>
+                <option value="Elian Loera Garay"></option>
+                <option value="Diego Alvarado Díaz"></option>
+              </datalist>
+            </div>
+
+            <div class="pt-2 border-t border-slate-100">
+              <p class="text-xs font-bold text-slate-600 uppercase mb-2">Métricas Iniciales de Línea Base</p>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs text-slate-600 mb-1">Cobertura Unitaria (%)</label>
+                  <input type="number" id="proj-cov" min="0" max="100" value="82" required
+                    class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm" />
+                </div>
+                <div>
+                  <label class="block text-xs text-slate-600 mb-1">Éxito en CI (%)</label>
+                  <input type="number" id="proj-ci" min="0" max="100" value="92" required
+                    class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm" />
+                </div>
+                <div>
+                  <label class="block text-xs text-slate-600 mb-1">Bugs Críticos Abiertos</label>
+                  <input type="number" id="proj-bugs" min="0" max="50" value="0" required
+                    class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm" />
+                </div>
+                <div>
+                  <label class="block text-xs text-slate-600 mb-1">Deuda Técnica (hrs)</label>
+                  <input type="number" id="proj-debt" min="0" max="200" value="5" required
+                    class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm" />
+                </div>
+              </div>
+            </div>
+
+            <button type="submit"
+              class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg text-sm shadow-md shadow-blue-600/20 transition">
+              + Registrar Proyecto en QualityHub
+            </button>
+          </form>
+        </div>
+
+        <!-- Catálogo de Proyectos Registrados -->
+        <div class="lg:col-span-2 bg-white p-6 rounded-xl border border-slate-200 card-shadow">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900">Proyectos Registrados</h2>
+              <p class="text-xs text-slate-500">Listado de proyectos dados de alta y clasificados por periodo</p>
+            </div>
+          </div>
+          <div id="projects-cards-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- PESTAÑA 2: SEGUIMIENTO DE MÉTRICAS         -->
+    <!-- ========================================== -->
+    <section id="tab-metricas" class="tab-section hidden space-y-6">
+      <div class="bg-white p-6 rounded-xl border border-slate-200 card-shadow">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-5 border-b border-slate-200">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900">Seguimiento y Calibración de Métricas de Calidad</h2>
+            <p class="text-xs text-slate-500">Actualiza los indicadores cuantitativos del proyecto y evalúa el impacto en el Quality Gate en tiempo real</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <label for="metrics-project-select" class="text-xs font-semibold text-slate-600">Proyecto:</label>
+            <select id="metrics-project-select"
+              class="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500"></select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+          <!-- Controles de Métricas -->
+          <div class="lg:col-span-2 space-y-5">
+            <!-- Métrica 1 -->
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+              <div class="flex justify-between items-center mb-1">
+                <label class="text-sm font-bold text-slate-800">1. Cobertura de Pruebas Unitarias (%)</label>
+                <span id="lbl-m-cov" class="text-sm font-extrabold text-blue-600">85%</span>
+              </div>
+              <p class="text-xs text-slate-500 mb-2">Meta del Quality Gate: &ge; 80% (Peso en Salud: 30%)</p>
+              <input type="range" id="input-m-cov" min="0" max="100" step="1" class="w-full accent-blue-600" />
+            </div>
+
+            <!-- Métrica 2 -->
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+              <div class="flex justify-between items-center mb-1">
+                <label class="text-sm font-bold text-slate-800">2. Estabilidad del Pipeline de Integración Continua (%)</label>
+                <span id="lbl-m-ci" class="text-sm font-extrabold text-blue-600">92%</span>
+              </div>
+              <p class="text-xs text-slate-500 mb-2">Meta del Quality Gate: &ge; 90% de ejecuciones exitosas (Peso en Salud: 20%)</p>
+              <input type="range" id="input-m-ci" min="0" max="100" step="1" class="w-full accent-blue-600" />
+            </div>
+
+            <!-- Métrica 3 -->
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+              <div class="flex justify-between items-center mb-1">
+                <label class="text-sm font-bold text-slate-800">3. Defectos Críticos Abiertos (Severidad Alta)</label>
+                <span id="lbl-m-bugs" class="text-sm font-extrabold text-rose-600">0</span>
+              </div>
+              <p class="text-xs text-slate-500 mb-2">Meta del Quality Gate: 0 defectos críticos sin resolver (Peso en Salud: 25%)</p>
+              <input type="range" id="input-m-bugs" min="0" max="10" step="1" class="w-full accent-rose-600" />
+            </div>
+
+            <!-- Métrica 4 -->
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+              <div class="flex justify-between items-center mb-1">
+                <label class="text-sm font-bold text-slate-800">4. Deuda Técnica Estimada (Horas)</label>
+                <span id="lbl-m-debt" class="text-sm font-extrabold text-amber-600">5 hrs</span>
+              </div>
+              <p class="text-xs text-slate-500 mb-2">Meta del Quality Gate: &le; 8 horas acumuladas (Peso en Salud: 10%)</p>
+              <input type="range" id="input-m-debt" min="0" max="40" step="1" class="w-full accent-amber-600" />
+            </div>
+
+            <button id="btn-save-metrics"
+              class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-lg text-sm shadow-md transition">
+              Guardar Actualización de Métricas
+            </button>
+          </div>
+
+          <!-- Panel de Resultado en Tiempo Real -->
+          <div class="bg-slate-900 text-white p-6 rounded-xl flex flex-col justify-between">
+            <div>
+              <p class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Evaluación Instantánea</p>
+              <h3 id="live-metric-proj-name" class="text-lg font-bold mt-1">—</h3>
+
+              <div class="my-6 text-center py-6 rounded-xl bg-slate-800/80 border border-slate-700">
+                <p class="text-xs text-slate-400 uppercase">Health Score Calculado</p>
+                <div id="live-health-score" class="text-5xl font-extrabold mt-2 text-emerald-400">90%</div>
+                <span id="live-health-badge" class="inline-block mt-3 text-xs font-bold uppercase px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300">
+                  SALUDABLE
+                </span>
+              </div>
+
+              <div class="space-y-2 text-xs">
+                <p class="font-semibold text-slate-300 uppercase">Estado de Umbrales (Quality Gate):</p>
+                <ul id="live-thresholds-list" class="space-y-1.5 text-slate-300"></ul>
+              </div>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-slate-800 text-xs text-slate-400">
+              * El cumplimiento de técnicas SQA (15% del peso) se actualiza automáticamente al completar revisiones y caminatas en el Módulo 3.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- PESTAÑA 3: GESTIÓN DE TÉCNICAS SQA         -->
+    <!-- ========================================== -->
+    <section id="tab-tecnicas" class="tab-section hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Registro de Aplicación de Técnica -->
+        <div class="bg-white p-6 rounded-xl border border-slate-200 card-shadow">
+          <h2 class="text-lg font-bold text-slate-900 mb-1">Registrar Técnica de SQA</h2>
+          <p class="text-xs text-slate-500 mb-4">Documenta la aplicación de revisiones personales, caminatas, pruebas unitarias o CI.</p>
+
+          <form id="form-log-technique" class="space-y-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Proyecto Monitoreado *</label>
+              <select id="tech-project-select" required
+                class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"></select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Técnica / Método SQA *</label>
+              <select id="tech-type" required
+                class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                <option value="Revisión Personal">Revisión Personal (Checklist)</option>
+                <option value="Caminata (Walkthrough)">Caminata (Walkthrough Grupal)</option>
+                <option value="Pruebas Unitarias">Pruebas Unitarias Automatizadas</option>
+                <option value="Integración Continua">Auditoría de Integración Continua (CI)</option>
+              </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Responsable *</label>
+                <input type="text" id="tech-responsible" required list="team-members-list" placeholder="Evaluador"
+                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Fecha *</label>
+                <input type="date" id="tech-date" required value="2026-11-03"
+                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Estado de Aplicación</label>
+                <select id="tech-status" required
+                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                  <option value="Completada">Completada</option>
+                  <option value="En Progreso">En Progreso</option>
+                  <option value="Planificada">Planificada</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Defectos Detectados</label>
+                <input type="number" id="tech-defects" min="0" max="100" value="1" required
+                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Hallazgos / Acuerdos de Calidad *</label>
+              <textarea id="tech-notes" rows="3" required placeholder="Describe los hallazgos, módulos revisados o decisiones tomadas..."
+                class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"></textarea>
+            </div>
+
+            <button type="submit"
+              class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-lg text-sm shadow-md transition">
+              + Registrar Evidencia de Técnica SQA
+            </button>
+          </form>
+        </div>
+
+        <!-- Bitácora de Técnicas Aplicadas -->
+        <div class="lg:col-span-2 bg-white p-6 rounded-xl border border-slate-200 card-shadow">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900">Monitoreo de Técnicas y Métodos SQA Aplicados</h2>
+              <p class="text-xs text-slate-500">Historial de revisiones personales, caminatas, pruebas unitarias y ejecuciones CI</p>
+            </div>
+            <select id="filter-tech-type" class="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold">
+              <option value="TODAS">Todas las Técnicas</option>
+              <option value="Revisión Personal">Revisión Personal</option>
+              <option value="Caminata (Walkthrough)">Caminata (Walkthrough)</option>
+              <option value="Pruebas Unitarias">Pruebas Unitarias</option>
+              <option value="Integración Continua">Integración Continua</option>
+            </select>
+          </div>
+
+          <div id="techniques-log-container" class="space-y-3 max-h-[540px] overflow-y-auto pr-1"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- PESTAÑA 4: REPORTES DE ESTADO DE SALUD     -->
+    <!-- ========================================== -->
+    <section id="tab-reportes" class="tab-section hidden space-y-6">
+      <!-- Barra de Controles del Reporte -->
+      <div class="bg-white p-4 rounded-xl border border-slate-200 card-shadow flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 no-print">
+        <div class="flex items-center gap-3">
+          <label for="report-project-select" class="text-sm font-bold text-slate-700">Seleccionar Proyecto para Dictamen:</label>
+          <select id="report-project-select"
+            class="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-blue-500"></select>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btn-export-json"
+            class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold px-4 py-2 rounded-lg text-xs border border-slate-300 transition">
+            ⬇ Exportar JSON
+          </button>
+          <button onclick="window.print()"
+            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg text-xs shadow-sm transition">
+            🖨️ Imprimir / Guardar PDF
+          </button>
+        </div>
+      </div>
+
+      <!-- Documento de Reporte Ejecutivo -->
+      <div id="executive-report-card" class="bg-white p-8 rounded-xl border border-slate-200 card-shadow print-container space-y-6">
+        <!-- Encabezado del Reporte -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between border-b border-slate-200 pb-6 gap-4">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-widest text-blue-600">QualityHub — Dictamen Ejecutivo de SQA</span>
+            <h2 id="rep-proj-name" class="text-2xl font-extrabold text-slate-900 mt-1">—</h2>
+            <p id="rep-proj-meta" class="text-xs text-slate-500 mt-1">—</p>
+          </div>
+          <div class="flex items-center gap-4 bg-slate-50 px-5 py-3 rounded-xl border border-slate-200">
+            <div class="text-right">
+              <p class="text-xs font-semibold text-slate-400 uppercase">Índice de Salud</p>
+              <p id="rep-health-score" class="text-3xl font-extrabold text-slate-900">0%</p>
+            </div>
+            <div id="rep-status-badge" class="px-3 py-1.5 rounded-lg text-xs font-extrabold uppercase">
+              SALUDABLE
+            </div>
+          </div>
+        </div>
+
+        <!-- Desglose de Métricas vs Umbrales -->
+        <div>
+          <h3 class="text-sm font-bold uppercase tracking-wider text-slate-700 mb-3">1. Evaluación Cuantitativa del Quality Gate</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse border border-slate-200 text-sm">
+              <thead>
+                <tr class="bg-slate-50 text-slate-600 text-xs uppercase font-bold border-b border-slate-200">
+                  <th class="py-2.5 px-4">Métrica de Calidad</th>
+                  <th class="py-2.5 px-4 text-center">Valor Actual</th>
+                  <th class="py-2.5 px-4 text-center">Umbral Meta</th>
+                  <th class="py-2.5 px-4 text-center">Peso</th>
+                  <th class="py-2.5 px-4 text-center">Dictamen</th>
+                </tr>
+              </thead>
+              <tbody id="rep-metrics-tbody" class="divide-y divide-slate-200"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Resumen de Aplicación de Técnicas SQA -->
+        <div>
+          <h3 class="text-sm font-bold uppercase tracking-wider text-slate-700 mb-3">2. Evidencia de Técnicas y Métodos de SQA Aplicados</h3>
+          <div id="rep-techniques-list" class="space-y-2"></div>
+        </div>
+
+        <!-- Recomendaciones y Plan de Acción -->
+        <div class="bg-blue-50/70 border border-blue-200 rounded-xl p-5">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-blue-900 mb-2">3. Diagnóstico y Recomendaciones de Aseguramiento de Calidad</h3>
+          <ul id="rep-recommendations" class="list-disc list-inside text-sm text-blue-950 space-y-1.5"></ul>
+        </div>
+
+        <!-- Pie de Firma del Comité SQA -->
+        <div class="pt-6 border-t border-slate-200 grid grid-cols-2 sm:grid-cols-5 gap-4 text-center text-xs text-slate-500">
+          <div>
+            <p class="font-bold text-slate-800">Ricardo Parga</p>
+            <p>Responsable de Proyecto</p>
+          </div>
+          <div>
+            <p class="font-bold text-slate-800">Paul Rivera Salas</p>
+            <p>Líder Técnico</p>
+          </div>
+          <div>
+            <p class="font-bold text-slate-800">Jesús Adrián Arias</p>
+            <p>Responsable QA</p>
+          </div>
+          <div>
+            <p class="font-bold text-slate-800">Elian Loera Garay</p>
+            <p>Desarrollador</p>
+          </div>
+          <div>
+            <p class="font-bold text-slate-800">Diego Alvarado Díaz</p>
+            <p>Desarrollador</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="bg-white border-t border-slate-200 py-4 mt-8 no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+      <p><strong>QualityHub v1.0</strong> — Centro de Control de Aseguramiento de la Calidad de Software (SQA)</p>
+      <p>Equipo: Ricardo Parga · Paul Rivera Salas · Jesús Adrián Arias Delgado · Elian Loera Garay · Diego Alvarado Díaz</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
