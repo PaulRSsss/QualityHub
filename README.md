@@ -1,102 +1,90 @@
 # QualityHub — Centro de Control y Monitoreo de SQA
 
 ![CI Quality Gate](https://github.com/PaulRSsss/QualityHub/actions/workflows/ci.yml/badge.svg)
-![Versión](https://img.shields.io/badge/versi%C3%B3n-1.0.0--beta-blue)
-![SQA Status](https://img.shields.io/badge/SQA-Aprobado-success)
+![Versión](https://img.shields.io/badge/versi%C3%B3n-1.0.0--final-blue)
+![SQA Status](https://img.shields.io/badge/Salud_del_Software-96.4%25_Saludable-success)
 
-**QualityHub** es una plataforma web interactiva y motor de evaluación diseñado para monitorear, gestionar y visualizar las actividades de **Aseguramiento de la Calidad del Software (SQA)** de múltiples proyectos de desarrollo por periodo académico o trimestral.
+**QualityHub** es una plataforma web interactiva y motor de evaluación que desarrollamos para monitorear, gestionar y visualizar las actividades de **Aseguramiento de la Calidad del Software (SQA)** de proyectos de desarrollo organizados por semestre o periodo.
 
-Además de servir como centro de control para otros proyectos, **QualityHub** ha sido construido aplicando rigurosamente prácticas de SQA durante su propio ciclo de vida: **Revisiones Personales (Checklists)**, **Caminatas (Walkthroughs)**, **Pruebas Unitarias Automatizadas** e **Integración Continua (CI)**.
+Además de servir para evaluar otros proyectos, construimos **QualityHub** aplicando nuestras propias prácticas de SQA durante todo el semestre: **Checklist de Revisión**, **Revisiones Personales**, **Caminatas (*Walkthroughs*)**, **Pruebas Unitarias Automatizadas** e **Integración Continua (CI)**.
 
 ---
 
-## 👥 Equipo de Trabajo y Roles
+## 👥 Integrantes del Equipo y Roles
 
-| Rol | Integrante | Responsabilidades Principales |
+| Rol | Integrante | Responsabilidades en el Proyecto |
 | :--- | :--- | :--- |
-| **Responsable de Proyecto (PM)** | **Ricardo Parga** | Gestión del cronograma, coordinación de entregas ejecutivas (Check-ins), control de riesgos y mantenimiento de la Bitácora General de SQA. |
-| **Líder Técnico / Arquitecto** | **Paul Rivera Salas** | Diseño de la arquitectura del sistema, motor de cálculo de salud, configuración del repositorio e implementación del pipeline de Integración Continua (GitHub Actions). |
-| **Integrante / Líder de QA** | **Jesús Adrián Arias Delgado** | Definición de la estrategia SQA, diseño y ejecución de la suite de pruebas unitarias, moderación de caminatas (*walkthroughs*) y validación de métricas. |
-| **Desarrollador** | **Elian Loera Garay** | Desarrollo del módulo de Registro de Proyectos por Periodo y del módulo de Seguimiento de Métricas de Calidad. |
-| **Desarrollador** | **Diego Alvarado Díaz** | Desarrollo del módulo de Gestión de Técnicas SQA y del generador de Reportes sobre el Estado de Salud del Software. |
+| **Responsable de Proyecto** | **Ricardo Parga** | Organización de entregas (Check-ins), seguimiento del cronograma, Bitácora y Reportes de Estado de Salud. |
+| **Técnico** | **Paul Rivera Salas** | Arquitectura general, estructura del Dashboard web y configuración de Integración Continua (GitHub Actions). |
+| **Integrante / QA** | **Jesús Adrián Arias Delgado** | Estrategia de Calidad (SQAP), diseño del Checklist, moderación de Caminatas y programación de Pruebas Unitarias. |
+| **Desarrollador** | **Elian Loera Garay** | Programación del motor de Registro de Proyectos por Periodo y cálculo de Métricas de Calidad. |
+| **Desarrollador** | **Diego Alvarado Díaz** | Programación del módulo de Gestión de Técnicas SQA, gráficas y generador de Reportes de Salud en PDF/JSON. |
 
 ---
 
-## 🎯 Alcance y Funcionalidad del Producto
+## 📚 Documentación del Proyecto y Evidencias de SQA (`docs/`)
 
-**QualityHub** actúa como un centro de control integral que permite:
+Todos los documentos requeridos están organizados en la carpeta [`docs/`](./docs):
 
-1. **Registro de Proyectos de Software por Periodo:** Alta, filtrado y clasificación de proyectos monitoreados (ej. `2026-2 Ago-Dic`, `2026-1 Ene-Jun`), incluyendo líder, stack tecnológico y estado actual.
-2. **Seguimiento de Métricas de Calidad:** Monitoreo cuantitativo con umbrales (*Quality Gates*) de:
-   - Cobertura de pruebas unitarias (`%`).
-   - Tasa de éxito en Integración Continua (`%`).
-   - Densidad de defectos por KLOC / módulo.
-   - Defectos críticos abiertos.
-   - Índice de deuda técnica estimada (horas).
-3. **Gestión de Técnicas y Métodos de SQA:** Registro, programación y monitoreo de la aplicación de técnicas estáticas y dinámicas (Revisiones Personales, Caminatas/Walkthroughs, Pruebas Unitarias, Auditorías CI) con trazabilidad de defectos detectados y corregidos.
-4. **Generación de Reportes sobre el Estado de Salud:** Cálculo automatizado de un **Índice de Salud del Software (Health Score 0–100%)**, clasificación semafórica (`Saludable`, `En Riesgo`, `Crítico`), recomendaciones automáticas de mitigación y exportación de dictamen ejecutivo.
+### 1. Documentos Indispensables de Ingeniería y Calidad
+1. [**Visión y Alcance**](./docs/01-Vision-y-Alcance.md) — Problema que resolvemos, visión de QualityHub, qué entra en el alcance y roles del equipo.
+2. [**SRS (Especificación de Requisitos de Software)**](./docs/02-SRS.md) — Perfiles de usuario, requisitos funcionales (`RF-01` a `RF-06`) y requisitos no funcionales (`RNF-01` a `RNF-05`).
+3. [**SDS (Especificación de Diseño de Software)**](./docs/03-SDS.md) — Arquitectura, diagrama de componentes, diseño de clases y fórmula ponderada del *Health Score*.
+4. [**Wireframes (Bocetos de la Interfaz)**](./docs/04-Wireframes.md) — Bocetos de las 5 vistas del sistema diseñados al inicio del desarrollo.
+5. [**Estrategia de Calidad (SQAP)**](./docs/05-Estrategia-de-Calidad-SQAP.md) — Plan de Aseguramiento de la Calidad, métricas del *Quality Gate* y técnicas seleccionadas.
+6. [**Reporte de Estado (Salud)**](./docs/06-Reporte-de-Estado-Salud.md) — Dictamen actual de salud del software (`96.4% Saludable`) y reportes de los puntos de control (6 Oct, 20 Oct y 3 Nov).
 
----
-
-## 🛡️ Estrategia de Aseguramiento de la Calidad (SQA) Aplicada
-
-Para garantizar la calidad y medir el estado de salud de **QualityHub** durante su desarrollo, implementamos un esquema compuesto por revisiones estáticas tempranas, pruebas dinámicas y automatización:
-
-- **Revisiones Personales:** Filtro inicial obligatorio donde cada desarrollador inspecciona su propio código frente a listas de comprobación (*checklists*) antes de realizar un *commit*.
-- **Caminatas (*Walkthroughs*):** Sesiones colaborativas en las que el autor expone la lógica y arquitectura del módulo ante el equipo para detectar inconsistencias, evaluar la legibilidad y unificar criterios de diseño.
-- **Pruebas Unitarias:** Verificación aislada de las funciones críticas del motor de evaluación y cálculo de métricas mediante `unittest`.
-- **Integración Continua (CI):** Pipeline automatizado en GitHub Actions que ejecuta la suite de pruebas unitarias en cada *push* y *Pull Request* hacia la rama `main`.
+### 2. Documentos y Evidencias de SQA del Equipo
+7. [**Checklist de Revisión**](./docs/07-Checklist-de-Revision.md) — Lista de comprobación de 10 puntos que usamos como filtro antes de subir código.
+8. [**Revisiones Personales**](./docs/08-Revisiones-Personales.md) — Registros de las revisiones pre-commit aplicadas por Elian, Paul y Diego con los errores que corrigieron.
+9. [**Caminata (Walkthroughs)**](./docs/09-Caminata.md) — Actas de las 2 sesiones grupales de revisión de código moderadas por Jesús Adrián con los 6 hallazgos resueltos.
+10. [**Bitácora**](./docs/10-Bitacora.md) — Historial cronológico fecha por fecha de todo el desarrollo y actividades de control de calidad.
+11. [**Retrospectiva**](./docs/11-Retrospectiva.md) — Reflexión final del equipo sobre lo que funcionó bien, lo que costó trabajo y lo que aprendimos.
 
 ---
 
-## 📂 Estructura del Repositorio
+## 📂 Estructura de Archivos del Repositorio
 
 ```text
 QualityHub/
 ├── .github/
 │   └── workflows/
-│       └── ci.yml                       # Pipeline de Integración Continua (GitHub Actions)
-├── docs/
-│   └── sqa/                             # Evidencias formales de SQA durante el desarrollo
-│       ├── 01-definicion-arquitectura.md # Entregable 6 Oct: Alcance, Wireframes y Estrategia SQA
-│       ├── 02-actas-caminatas.md        # Minutas de Walkthroughs realizados por el equipo
-│       ├── 03-revisiones-personales.md  # Checklists de revisión personal firmados
-│       ├── 04-bitacora-sqa.md           # Bitácora cronológica de SQA y decisiones tomadas
-│       └── 05-reportes-checkins.md      # Reportes ejecutivos de seguimiento (6 Oct, 20 Oct, 3 Nov)
-├── src/
-│   ├── index.html                       # Interfaz principal del Dashboard QualityHub
-│   ├── styles.css                       # Estilos personalizados y diseño de impresión de reportes
-│   ├── app.js                           # Lógica de interfaz, persistencia y visualización
-│   └── sqa_engine.py                    # Motor de evaluación de métricas y salud del software
+│       └── ci.yml                           # Pipeline de Integración Continua (GitHub Actions)
+├── docs/                                    # Los 11 documentos del proyecto y evidencias SQA
+│   ├── 01-Vision-y-Alcance.md
+│   ├── 02-SRS.md
+│   ├── 03-SDS.md
+│   ├── 04-Wireframes.md
+│   ├── 05-Estrategia-de-Calidad-SQAP.md
+│   ├── 06-Reporte-de-Estado-Salud.md
+│   ├── 07-Checklist-de-Revision.md
+│   ├── 08-Revisiones-Personales.md
+│   ├── 09-Caminata.md
+│   ├── 10-Bitacora.md
+│   └── 11-Retrospectiva.md
+├── src/                                     # Código fuente de la herramienta QualityHub
+│   ├── index.html                           # Interfaz principal del Dashboard Web
+│   ├── styles.css                           # Estilos y formato de impresión PDF
+│   ├── app.js                               # Lógica de proyectos, métricas, técnicas y reportes
+│   └── sqa_engine.py                        # Motor en Python de cálculo y validación SQA
 ├── tests/
-│   └── test_sqa_engine.py               # Suite de pruebas unitarias automatizadas
+│   └── test_sqa_engine.py                   # Suite de 12 pruebas unitarias automatizadas
 └── README.md
 ```
 
 ---
 
-## 🚀 Ejecución del Proyecto y Pruebas
+## 🚀 Cómo Abrir el Sistema y Correr las Pruebas
 
-### 1. Abrir el Dashboard Web
-Puedes abrir directamente el archivo `src/index.html` en cualquier navegador moderno, o levantar un servidor local con Python:
-
+### 1. Usar el Dashboard Web
+Abre directamente el archivo `src/index.html` con doble clic en cualquier navegador, o levanta un servidor local:
 ```bash
 py -m http.server 8000 --directory src
 ```
-Luego visita `http://localhost:8000` en tu navegador.
+Y entra a `http://localhost:8000`.
 
-### 2. Ejecutar la Suite de Pruebas Unitarias
-Para verificar el motor de métricas y salud de software:
-
+### 2. Ejecutar las Pruebas Unitarias
+Desde la carpeta raíz del proyecto ejecuta:
 ```bash
 py -m unittest discover -s tests -v
 ```
-
----
-
-## 📋 Trazabilidad de Entregas (Check-ins)
-
-- **Martes, 6 de octubre — Definición y Arquitectura:** [Ver Documento](./docs/sqa/01-definicion-arquitectura.md)
-- **Martes, 20 de octubre — Prototipo Funcional:** [Ver Bitácora y Evidencias](./docs/sqa/04-bitacora-sqa.md)
-- **Martes, 3 de noviembre — Versión Beta:** [Ver Reportes de Estado y Resultados SQA](./docs/sqa/05-reportes-checkins.md)
-- **Jueves, 19 de noviembre — Entrega Final:** Despliegue, repositorio documentado y Bitácora de SQA consolidada.

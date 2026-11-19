@@ -2,13 +2,13 @@ name: QualityHub SQA — Integración Continua
 
 on:
   push:
-    branches: [ "main", "develop", "feature/*" ]
+    branches: [ "main", "master", "develop", "feature/*" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
 
 jobs:
   sqa-quality-gate:
-    name: Pruebas Unitarias y Verificación SQA
+    name: Pruebas Unitarias y Verificación de Documentos SQA
     runs-on: ubuntu-latest
 
     steps:
@@ -20,16 +20,22 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Verificar existencia de evidencias de SQA obligatorias
+      - name: Verificar existencia de los 11 documentos de ingeniería y SQA
         run: |
-          test -f docs/sqa/01-definicion-arquitectura.md
-          test -f docs/sqa/02-actas-caminatas.md
-          test -f docs/sqa/03-revisiones-personales.md
-          test -f docs/sqa/04-bitacora-sqa.md
-          test -f docs/sqa/05-reportes-checkins.md
+          test -f docs/01-Vision-y-Alcance.md
+          test -f docs/02-SRS.md
+          test -f docs/03-SDS.md
+          test -f docs/04-Wireframes.md
+          test -f docs/05-Estrategia-de-Calidad-SQAP.md
+          test -f docs/06-Reporte-de-Estado-Salud.md
+          test -f docs/07-Checklist-de-Revision.md
+          test -f docs/08-Revisiones-Personales.md
+          test -f docs/09-Caminata.md
+          test -f docs/10-Bitacora.md
+          test -f docs/11-Retrospectiva.md
           test -f src/index.html
           test -f src/app.js
-          echo "Artefactos de SQA e interfaz verificados correctamente."
+          echo "Los 11 documentos de SQA y archivos del sistema fueron verificados correctamente."
 
       - name: Ejecutar Suite de Pruebas Unitarias (Quality Gate)
         run: |
