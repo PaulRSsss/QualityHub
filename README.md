@@ -6,6 +6,8 @@
 
 **QualityHub** es una plataforma web interactiva y motor de evaluación que desarrollamos para monitorear, gestionar y visualizar las actividades de **Aseguramiento de la Calidad del Software (SQA)** de proyectos de desarrollo organizados por semestre o periodo.
 
+🌐 **Despliegue en Vivo (GitHub Pages):** **[https://paulrssss.github.io/QualityHub/](https://paulrssss.github.io/QualityHub/)**
+
 Además de servir para evaluar otros proyectos, construimos **QualityHub** aplicando nuestras propias prácticas de SQA durante todo el semestre: **Checklist de Revisión**, **Revisiones Personales**, **Caminatas (*Walkthroughs*)**, **Pruebas Unitarias Automatizadas** e **Integración Continua (CI)**.
 
 ---
